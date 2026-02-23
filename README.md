@@ -315,6 +315,48 @@ Because OpenClaw stores all memory locally on your Ubuntu server, your data rema
 
 ---
 
+## Access OpenClaw Dashboard on Local Network
+
+To access the dashboard from another PC on your LAN, you must change the bind address from **loopback (127.0.0.1)** to **0.0.0.0**.
+
+#### 1. Configure the Gateway
+
+Run the wizard and select the **gateway** section:
+
+```bash
+openclaw configure --section gateway
+
+```
+
+* **Select:** "Local (this machine)"
+* **Port:** `18789` (Press Enter)
+* **Bind Address:** Type `0.0.0.0`
+* **LAN Discovery:** "Yes"
+
+#### 2. Apply and Verify
+
+Restart the service to apply changes:
+
+```bash
+openclaw gateway restart
+
+```
+
+Confirm it is listening on all interfaces:
+
+```bash
+ss -tulpn | grep 18789
+# Look for: 0.0.0.0:18789
+
+```
+
+#### 3. Remote Login
+
+1. **Get Token:** `openclaw gateway token`
+2. **Access:** On your personal PC, go to `http://<ubuntu-ip>:18789`
+
+---
+
 ## Cloudflare Access:
 
 Exposing your dashboard directly to the internet by opening ports on your Hostinger VPS is a major security risk, especially for an AI agent with access to your file system and terminal.
