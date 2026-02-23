@@ -2,7 +2,7 @@
 
 Here are the two primary ways to get OpenClaw running on Ubuntu.
 
-### Option 1: Native CLI Installer
+## Option 1: Native CLI Installer
 
 If you prefer running the framework directly on the host OS, the official bash script handles the heavy lifting, including fetching and installing Node.js (v22+) if your system doesn't have it yet.
 
@@ -24,7 +24,7 @@ openclaw onboard --install-daemon
 
 ---
 
-### Option 2: Docker Compose (Recommended)
+## Option 2: Docker Compose (Recommended)
 
 This approach provides the granular control and container isolation standard in robust infrastructure deployments. It also makes it straightforward to securely expose the web dashboard behind a Cloudflare tunnel or reverse proxy later on.
 
@@ -88,11 +88,9 @@ TELEGRAM_BOT_TOKEN="your_token_here"
 
 ```
 
-
-
 Then, restart the OpenClaw gateway. *(Note: By default, OpenClaw uses long-polling for Telegram. This means your bot actively reaches out to Telegram, so you don't even need to open inbound ports or configure complex firewall rules for webhooks).*
 
-### Step 3: Approve the Connection
+## Step 3: Approve the Connection
 
 1. Switch back to Telegram, search for your newly created bot's username, and send `/start` or a simple "hi".
 2. The bot will respond with a secure **pairing code**.
@@ -145,5 +143,31 @@ If enabled, OpenClaw can automatically trigger specific actions when certain eve
 ### What Should You Choose?
 
 If you are just getting started and want to keep the initial setup simple, you can safely select **"Skip for now"**. You can always enable and configure hooks later via the CLI (using commands like `openclaw hooks list` or `openclaw hooks enable`) once you are more familiar with the framework.
+
+---
+
+## Verifying Your OpenClaw Installation
+
+Once the installation is complete, you need to reload your shell configuration so your terminal recognizes the newly installed command.
+
+1. **Reload your bash profile:**
+```bash
+source ~/.bashrc
+
+```
+
+
+2. **Test the OpenClaw CLI:**
+Run the base command to ensure the framework is active and responding.
+```bash
+openclaw
+
+```
+
+
+
+**Expected Output:**
+
+> 🦞 OpenClaw 2026.2.22-2 (45febec) — I'll do the boring stuff while you dramatically stare at the logs like it's cinema.
 
 ---
