@@ -20,8 +20,6 @@ openclaw onboard --install-daemon
 
 ```
 
-
-
 ---
 
 ## Option 2: Docker Compose (Recommended)
@@ -169,5 +167,247 @@ openclaw
 **Expected Output:**
 
 > 🦞 OpenClaw 2026.2.22-2 (45febec) — I'll do the boring stuff while you dramatically stare at the logs like it's cinema.
+
+---
+
+Here is the rewritten installation documentation, including the complete steps for authenticating the newly downloaded GitHub integration.
+
+### Installing External Skills via ClawHub
+
+While core capabilities are built directly into OpenClaw, third-party integrations must be downloaded using **ClawHub**, the framework's official package manager.
+
+1. **Install ClawHub Globally:**
+Since OpenClaw runs on Node.js, use `npm` to install the ClawHub CLI so it is accessible anywhere on your system.
+```bash
+npm install -g clawhub
+
+```
+
+
+2. **Download the GitHub Skill:**
+Use the newly installed ClawHub tool to fetch the GitHub integration into your workspace.
+```bash
+clawhub install github
+
+```
+
+
+**Expected Output:**
+> `✔ OK. Installed github -> /home/open/.openclaw/workspace/skills/github`
+
+
+
+---
+
+## Authenticating the GitHub Skill
+
+By default, the GitHub skill handles repositories, pull requests, and commits using either a managed OAuth flow or a Personal Access Token (PAT). For a headless daemon running on an Ubuntu server, passing a PAT via your environment variables is the most reliable method.
+
+**Step 1: Generate a Personal Access Token**
+
+1. Log in to GitHub in your browser and go to **Settings > Developer Settings > Personal Access Tokens (Classic)**.
+2. Click **Generate new token**.
+3. Give it a descriptive name (e.g., "OpenClaw Daemon") and check the `repo` scope (to read/write code and issues) and the `project` scope.
+4. Generate the token and copy it to your clipboard.
+
+**Step 2: Add the Token to OpenClaw**
+OpenClaw reads environment variables from a hidden `.env` file in its home directory.
+
+1. Open or create this file on your server:
+```bash
+nano ~/.openclaw/.env
+
+```
+
+
+2. Add your GitHub token to the file:
+```env
+GITHUB_TOKEN="ghp_your_long_token_string_here"
+
+```
+
+
+3. Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+**Step 3: Restart the Daemon**
+For the background service to pick up the new environment variable, restart the OpenClaw process:
+
+```bash
+openclaw restart
+
+```
+
+With authentication complete, the agent can streamline how you track tasks. Instead of manually writing them out, you can just ask OpenClaw to review your recent Nuxt.js logs for the `gts-frontend` and automatically draft a detailed GitHub issue containing the stack traces and proposed fixes.
+
+---
+
+## SOUL.md
+
+The `SOUL.md` file is the brain of your workspace. While OpenClaw has a base personality, dropping a `SOUL.md` file into a project directory overrides its default behavior and gives the agent strict, context-aware instructions on how to behave, code, and manage infrastructure specifically for that repository.
+
+Here is how to set it up and tailor it to your engineering workflow.
+
+### Step 1: Create the File
+
+Navigate to the root directory of your project (for example, your `gts-frontend` folder or your AI backend) and create the file:
+
+```bash
+cd /path/to/your/project
+nano SOUL.md
+
+```
+
+### Step 2: Define the Rules
+
+The file is written in standard Markdown. You want to define the agent's identity, its strict technical stack, and how it should handle your task management.
+
+Paste the following template into the file and adjust it as needed:
+
+```markdown
+# Identity
+You are an expert DevOps engineer, System Administrator, and full-stack developer assisting with project architecture, deployment, and debugging.
+
+# Coding & Infrastructure Standards
+- **Backend & APIs:** Default to Python and FastAPI. Ensure all endpoints are asynchronous where appropriate.
+- **Machine Learning:** Strictly use PyTorch over TensorFlow for all model architecture and training scripts.
+- **Frontend:** Follow Nuxt.js conventions and best practices for component structure.
+- **Infrastructure:** All services must be containerized using Docker. Write configurations with Kubernetes deployments in mind.
+
+# Workflow & Task Management
+- **Issue Tracking:** Strictly use GitHub issues to track tasks, bugs, and infrastructure changes. 
+- **Bug Reporting:** When asked to review logs, automatically draft a GitHub issue containing the formatted stack trace, root cause analysis, and a proposed fix.
+- **Communication:** Be direct, concise, and prioritize technical accuracy over conversational filler.
+
+```
+
+### Step 3: Save and Apply
+
+Save the file (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+Whenever OpenClaw operates within this directory, it will read this `SOUL.md` file first. It now inherently knows not to suggest TensorFlow when you ask for a neural network snippet, and it knows exactly how you prefer to track your bugs.
+
+### Testing It Out
+
+To see this in action, you can test it directly from your CLI or your connected chat. Navigate to the directory containing the `SOUL.md` and run a prompt through the OpenClaw message command:
+
+```bash
+openclaw message send "Review the recent Nuxt.js build logs in this directory. If there are any Docker image build errors, create a new GitHub issue detailing the problem."
+
+```
+
+---
+
+### How OpenClaw Handles Memory
+
+OpenClaw separates its memory system into two distinct layers: the active context window (short-term) and the persistent local database (long-term). This ensures the agent does not lose track of complex projects over time, while keeping your local vLLM from being overwhelmed by massive token counts.
+
+**1. Short-Term Memory (The Active Session)**
+
+* **How it works:** This is your immediate back-and-forth conversation. It holds the recent shell commands, the stack traces you just pasted, and the current logic of the file you are editing.
+* **Best Practice:** When you finish troubleshooting one bug and move to a completely different task, type `/new` or `/reset` in your chat interface. This clears the short-term context. It prevents token bloat and keeps the model from confusing old error logs with new ones.
+
+**2. Long-Term Memory (Persistent Context)**
+
+* **How it works:** When you reset a session, OpenClaw automatically distills the important takeaways from that conversation (such as architectural decisions, successfully resolved bugs, or specific server configurations) and writes them to its local storage.
+* **Manual Storage:** You can explicitly force the agent to store a critical fact by telling it directly: *"Remember that the production database requires a VPN connection."*
+* **Retrieval:** In future sessions, the agent runs a background search against this database to pull relevant context before replying. You can also query it yourself by asking, *"What do you remember about the database configuration?"*
+
+### Managing the Memory Files
+
+Because OpenClaw stores all memory locally on your Ubuntu server, your data remains entirely private, and you maintain complete control over what the agent knows.
+
+* **Viewing the Data:** You can visualize the agent's memory map and read the exact nodes of information it has saved by opening the Web UI dashboard.
+* **Pruning Context:** If the agent starts stubbornly referencing outdated infrastructure or old code, you can delete those specific memory nodes via the dashboard, or simply instruct the agent in chat: *"Forget the previous instructions about..."*
+
+---
+
+## Cloudflare Access:
+
+Exposing your dashboard directly to the internet by opening ports on your Hostinger VPS is a major security risk, especially for an AI agent with access to your file system and terminal.
+
+A **Cloudflare Tunnel** solves this by creating a secure, outbound-only connection from your server to Cloudflare's edge network. It gives you a beautiful, secure HTTPS URL (like `openclaw.yourdomain.com`) without opening any inbound firewall ports.
+
+Here is how to set it up on your Ubuntu server.
+
+### Step 1: Install the Cloudflare Daemon (`cloudflared`)
+
+First, download and install the official Cloudflare package.
+
+```bash
+curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared.deb
+
+```
+
+### Step 2: Authenticate with Your Cloudflare Account
+
+Run the login command. It will generate a URL in your terminal.
+
+```bash
+cloudflared tunnel login
+
+```
+
+Copy that URL, paste it into your local web browser, log in to your Cloudflare account, and select the domain you want to use for this tunnel.
+
+### Step 3: Create the Tunnel
+
+Once authenticated, go back to your server terminal and create a new tunnel named `openclaw-ui`:
+
+```bash
+cloudflared tunnel create openclaw-ui
+
+```
+
+*Note: This command will output a UUID (a long string of letters and numbers) and the path to a `.json` credentials file. You will need that UUID for the next step.*
+
+### Step 4: Configure the Routing
+
+You need to tell Cloudflare to route traffic from your new tunnel to OpenClaw's local port (`18789`).
+
+1. Create and open a configuration file:
+```bash
+nano ~/.cloudflared/config.yml
+
+```
+
+
+2. Paste the following configuration, replacing `<your-tunnel-uuid>` with the ID generated in Step 3, and changing the hostname to your desired web address:
+```yaml
+tunnel: <your-tunnel-uuid>
+credentials-file: /home/open/.cloudflared/<your-tunnel-uuid>.json
+
+ingress:
+  - hostname: openclaw.yourdomain.com
+    service: http://127.0.0.1:18789
+  - service: http_status:404
+
+```
+
+
+3. Save and exit (`Ctrl+O`, `Enter`, `Ctrl+X`).
+
+### Step 5: Route the DNS and Start the Service
+
+Now, map the tunnel to your actual DNS records and install it as a background service so it survives server reboots.
+
+1. Create the DNS record automatically:
+```bash
+cloudflared tunnel route dns openclaw-ui openclaw.yourdomain.com
+
+```
+
+
+2. Install and start the service:
+```bash
+sudo cloudflared service install
+sudo systemctl start cloudflared
+sudo systemctl enable cloudflared
+
+```
+
+
+
+That's it! You can now open your browser on any device and navigate to `https://openclaw.yourdomain.com`. You will be greeted by the OpenClaw login screen where you can paste your Gateway token, and your traffic will be fully encrypted end-to-end.
 
 ---
