@@ -128,3 +128,22 @@ openclaw skills install file-system  # Permits reading and writing local files
 
 ---
 
+## Enable Hooks 
+
+In OpenClaw, **Hooks** are an extensible, event-driven system made up of small scripts that automatically run in response to specific agent commands or lifecycle events.
+
+When the setup wizard asks if you want to **Enable hooks?**, it is asking whether you want to activate this background automation layer.
+
+### What Hooks Do
+
+If enabled, OpenClaw can automatically trigger specific actions when certain events occur inside the gateway (such as issuing a `/new`, `/reset`, or `/stop` command). Some common uses for bundled hooks include:
+
+* **Session Memory:** Automatically saving a snapshot of your conversation context to the agent's memory file whenever you reset the chat with the `/new` command.
+* **Command Logging:** Keeping a centralized audit trail of all the commands you issue to the agent, which is highly useful for troubleshooting.
+* **Custom Automations:** Triggering follow-up actions, injecting extra workspace files, or calling external webhooks when the agent starts or ends a session.
+
+### What Should You Choose?
+
+If you are just getting started and want to keep the initial setup simple, you can safely select **"Skip for now"**. You can always enable and configure hooks later via the CLI (using commands like `openclaw hooks list` or `openclaw hooks enable`) once you are more familiar with the framework.
+
+---
