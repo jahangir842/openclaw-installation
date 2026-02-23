@@ -315,38 +315,58 @@ Because OpenClaw stores all memory locally on your Ubuntu server, your data rema
 
 ---
 
-## Access OpenClaw Dashboard on Local Network
+## Enabling LAN Access for OpenClaw Dashboard
 
-To access the dashboard from another PC on your LAN, you must change the bind address from **loopback (127.0.0.1)** to **0.0.0.0**.
+To access the dashboard from another computer on your local network, you must switch the Gateway from **Remote** (which treats your current machine as a client) to **Local** (which treats it as the host) and change the bind mode to **LAN**.
 
-#### 1. Configure the Gateway
+#### 1. Run the Gateway Configuration
 
-Run the wizard and select the **gateway** section:
+Launch the interactive wizard for the gateway section:
 
 ```bash
 openclaw configure --section gateway
 
 ```
 
-* **Select:** "Local (this machine)"
-* **Port:** `18789` (Press Enter)
-* **Bind Address:** Type `0.0.0.0`
-* **LAN Discovery:** "Yes"
+#### 2. Follow the "Local Host" Path
 
-#### 2. Apply and Verify
+Select these specific options to expose the service to your network:
 
-Restart the service to apply changes:
+* **Where will the Gateway run?**: Select **Local (this machine)**.
+* **Gateway port**: Keep **18789** (Press Enter).
+* **Gateway bind mode**: Select **LAN (All interfaces)**. This changes the bind from `127.0.0.1` to `0.0.0.0`.
+* **Gateway auth**: Select **Password** (or Token) to secure the dashboard.
+* **Tailscale exposure**: Select **Off** (unless you need access outside your home network).
+
+#### 3. Restart the Daemon
+
+Apply the changes by restarting the background service:
 
 ```bash
 openclaw gateway restart
 
 ```
 
-Confirm it is listening on all interfaces:
+#### 4. Verification & Access
 
+1. **Confirm the Bind**: Check that it now shows `0.0.0.0:18789`:
 ```bash
 ss -tulpn | grep 18789
-# Look for: 0.0.0.0:18789
+
+```
+
+
+2. **Retrieve Token**: If you didn't set a password, get your access token:
+```bash
+openclaw gateway token
+
+```
+
+
+3. **Connect**: On your personal PC, open a browser and go to:
+`http://<ubuntu-ip>:18789`
+
+---
 
 ```
 
