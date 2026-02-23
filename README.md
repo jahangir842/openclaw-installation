@@ -1,4 +1,4 @@
-## Openclaw Installation on Linux (Ubuntu)
+# Openclaw Installation on Linux (Ubuntu)
 
 Here are the two primary ways to get OpenClaw running on Ubuntu.
 
