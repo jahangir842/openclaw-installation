@@ -60,10 +60,6 @@ Then visit `http://localhost:18789` in your local browser to input your gateway 
 
 ---
 
-Both paths will ultimately ask you to pair the agent with a chat interface so you can start issuing commands from your phone or desktop.
-
----
-
 ### Generating a Token and Hooking this up to Telegram
 
 Here are the steps to connect OpenClaw to Telegram. The strict HTTPS requirements Telegram enforces for webhooks are automatically handled by your Cloudflare DNS, making the routing to your Hostinger VPS incredibly smooth.
