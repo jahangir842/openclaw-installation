@@ -90,7 +90,7 @@ TELEGRAM_BOT_TOKEN="your_token_here"
 
 Then, restart the OpenClaw gateway. *(Note: By default, OpenClaw uses long-polling for Telegram. This means your bot actively reaches out to Telegram, so you don't even need to open inbound ports or configure complex firewall rules for webhooks).*
 
-## Step 3: Approve the Connection
+### Step 3: Approve the Connection
 
 1. Switch back to Telegram, search for your newly created bot's username, and send `/start` or a simple "hi".
 2. The bot will respond with a secure **pairing code**.
