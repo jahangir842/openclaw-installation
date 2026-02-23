@@ -315,62 +315,48 @@ Because OpenClaw stores all memory locally on your Ubuntu server, your data rema
 
 ---
 
-## Enabling LAN Access for OpenClaw Dashboard
+Great catch! You've found the exact panel needed to bridge the gap between your personal PC and the OpenClaw gateway.
 
-To access the dashboard from another computer on your local network, you must switch the Gateway from **Remote** (which treats your current machine as a client) to **Local** (which treats it as the host) and change the bind mode to **LAN**.
-
-#### 1. Run the Gateway Configuration
-
-Launch the interactive wizard for the gateway section:
-
-```bash
-openclaw configure --section gateway
-
-```
-
-#### 2. Follow the "Local Host" Path
-
-Select these specific options to expose the service to your network:
-
-* **Where will the Gateway run?**: Select **Local (this machine)**.
-* **Gateway port**: Keep **18789** (Press Enter).
-* **Gateway bind mode**: Select **LAN (All interfaces)**. This changes the bind from `127.0.0.1` to `0.0.0.0`.
-* **Gateway auth**: Select **Password** (or Token) to secure the dashboard.
-* **Tailscale exposure**: Select **Off** (unless you need access outside your home network).
-
-#### 3. Restart the Daemon
-
-Apply the changes by restarting the background service:
-
-```bash
-openclaw gateway restart
-
-```
-
-#### 4. Verification & Access
-
-1. **Confirm the Bind**: Check that it now shows `0.0.0.0:18789`:
-```bash
-ss -tulpn | grep 18789
-
-```
-
-
-2. **Retrieve Token**: If you didn't set a password, get your access token:
-```bash
-openclaw gateway token
-
-```
-
-
-3. **Connect**: On your personal PC, open a browser and go to:
-`http://<ubuntu-ip>:18789`
+Based on your latest screenshot, here is your finalized, step-by-step guide for establishing a secure, authenticated connection to your DevOps dashboard.
 
 ---
 
+## Guide: Accessing OpenClaw Dashboard on a Local Network
+
+To resolve the **"Secure Context"** and **"Unauthorized"** errors seen in your terminal and browser, follow these steps.
+
+### 1. Establish a Secure Context (SSH Tunnel)
+
+Browsers block gateway features on plain IP addresses (like `192.168.3.77`). You must use an SSH tunnel to make the browser believe the dashboard is local.
+
+* **Run this on your personal PC:**
+```bash
+ssh -N -L 18789:127.0.0.1:18789 open@192.168.3.77
+
 ```
 
-#### 3. Remote Login
+
+* **Open your browser to:** `http://localhost:18789`
+* *This resolves the red "control ui requires device identity" error.*
+
+### 2. Authenticate the Dashboard (The "Overview" Tab)
+
+Once the page loads, you will see an "Unauthorized" error. You must provide the password found in your `openclaw.json` file.
+
+* **Navigate to:** `Control` > `Overview` in the left sidebar.
+* **Locate "Gateway Access":** Find the **Password (not stored)** field.
+* **Enter Password:** Type `pakistan`.
+* **Action:** Click **Connect**.
+* *The status will turn green, and your "Config" and "Debug" snapshots will automatically populate with your server data.*
+
+### 3. Verify Connection
+
+* Check the top right of the dashboard; it should no longer say "Health Offline."
+* Go to the **Config** tab; the "Raw JSON5" block should now display your full `openclaw.json` contents.
+
+---
+
+## 3. Remote Login
 
 1. **Get Token:** `openclaw gateway token`
 2. **Access:** On your personal PC, go to `http://<ubuntu-ip>:18789`
