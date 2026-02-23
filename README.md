@@ -170,9 +170,7 @@ openclaw
 
 ---
 
-Here is the rewritten installation documentation, including the complete steps for authenticating the newly downloaded GitHub integration.
-
-### Installing External Skills via ClawHub
+## Installing External Skills via ClawHub
 
 While core capabilities are built directly into OpenClaw, third-party integrations must be downloaded using **ClawHub**, the framework's official package manager.
 
