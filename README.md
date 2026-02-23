@@ -231,7 +231,7 @@ GITHUB_TOKEN="ghp_your_long_token_string_here"
 For the background service to pick up the new environment variable, restart the OpenClaw process:
 
 ```bash
-openclaw restart
+openclaw gateway restart
 
 ```
 
