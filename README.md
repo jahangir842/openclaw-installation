@@ -364,8 +364,12 @@ Once the page loads, you will see an "Unauthorized" error. You must provide the 
 
 ## 3. Remote Login
 
-1. **Get Token:** `openclaw gateway token`
-2. **Access:** On your personal PC, go to `http://<ubuntu-ip>:18789`
+1. **Get Token:**
+   ```bash
+   source ~/.bashrc
+   openclaw gateway token`
+   ```
+4. **Access:** On your personal PC, go to `http://<ubuntu-ip>:18789`
 
 ---
 
