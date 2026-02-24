@@ -53,7 +53,11 @@ The gateway UI will bind to port `18789`. If you are running this on a headless 
 ssh -N -L 18789:127.0.0.1:18789 user@your_ubuntu_ip
 ```
 
-Then visit `http://localhost:18789` in your local browser to input your gateway token.
+Then visit the following link in your local browser to input your gateway token.
+
+```bash
+http://localhost:18789
+``` 
 
 ---
 
