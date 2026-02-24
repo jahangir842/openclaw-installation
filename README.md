@@ -30,6 +30,109 @@ Default model Enter model manually
 Default model ollama/llama3.2
 ```
 
+**Sample Ollama configuration:**
+
+You can use the follwoing Ollama sample configurations:
+
+```bash
+nano ./.openclaw/openclaw.json
+```
+
+
+```bash
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.23",
+    "lastTouchedAt": "2026-02-24T10:37:28.411Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-02-24T10:37:28.394Z",
+    "lastRunVersion": "2026.2.23",
+    "lastRunCommand": "configure",
+    "lastRunMode": "local"
+  },
+  "models": {
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://localhost:11434",
+        "apiKey": "ollama-local",
+        "api": "ollama",
+        "models": [
+          {
+            "id": "llama3.2",
+            "name": "llama3.2",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 32768
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "ollama/llama3.2"
+      },
+      "models": {
+        "ollama/llama3.2": {}
+      },
+      "workspace": "/home/user/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    }
+  },
+  "messages": {
+    "ackReactionScope": "group-mentions"
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "password",
+      "password": "pakistan"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "calendar.add",
+        "contacts.add",
+        "reminders.add"
+      ]
+    }
+  }
+}
+
+```
+
 * **Local Models (vLLM):** Select the vLLM option. Input your vLLM base URL (e.g., `http://192.168.3.74:8080/v1`). When prompted for the vLLM API key, simply enter a placeholder like `sk-local`, `dummy`, or `1234`. OpenClaw requires a non-empty string to format the authorization header correctly, but your local vLLM instance will safely ignore it.
 
 * **Cloud APIs (Claude / OpenAI):** If you switch to an external provider, select Anthropic or OpenAI and paste your active API key when prompted (e.g., `sk-ant-api03-...` for Claude or `sk-proj-...` for OpenAI).
