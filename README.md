@@ -4,6 +4,12 @@ Here are the two primary ways to get OpenClaw running on Ubuntu.
 
 ## Option 1: Native CLI Installer
 
+* Remove the openclas if it has been installed previously:
+
+  ```bash
+  openclaw uninstall --all --yes --non-interactive
+  ```
+
 If you prefer running the framework directly on the host OS, the official bash script handles the heavy lifting, including fetching and installing Node.js (v22+) if your system doesn't have it yet.
 
 1. **Run the One-Liner:**
