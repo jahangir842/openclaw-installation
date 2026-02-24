@@ -50,6 +50,12 @@ HATCH in TUI
 
 The Installation has been completed.
 
+If you want to reconfigure openclaw, you can run the following command:
+
+```bash
+openclaw configure
+```
+
 ---
 
 ### Access the Web Dashboard:**
