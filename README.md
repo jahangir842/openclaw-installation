@@ -2,9 +2,11 @@
 
 Here are the two primary ways to get OpenClaw running on Ubuntu.
 
-## Option 1: Native CLI Installer
+### Installation: Native CLI Installer
 
-* Remove the openclas if it has been installed previously:
+1. **Remove the Old Versions**
+
+Remove the openclas if it has been installed previously:
 
   ```bash
   openclaw uninstall --all --yes --non-interactive
@@ -12,9 +14,7 @@ Here are the two primary ways to get OpenClaw running on Ubuntu.
   npm cache clean --force
   ```
 
-If you prefer running the framework directly on the host OS, the official bash script handles the heavy lifting, including fetching and installing Node.js (v22+) if your system doesn't have it yet.
-
-1. **Run the One-Liner:**
+2. **Install Openclaw One-Liner:**
 ```bash
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
@@ -38,13 +38,15 @@ Default model ollama/llama3.2
 
 ---
 
-4. **Access the Web Dashboard:**
+4. **Configure skills now**
+
+---
+
+### Access the Web Dashboard:**
 The gateway UI will bind to port `18789`. If you are running this on a headless server, you can securely port-forward it via SSH to view it locally:
 ```bash
 ssh -N -L 18789:127.0.0.1:18789 user@your_ubuntu_ip
-
 ```
-
 
 Then visit `http://localhost:18789` in your local browser to input your gateway token.
 
