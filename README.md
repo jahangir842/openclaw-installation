@@ -53,6 +53,14 @@ The Installation has been completed.
 ---
 
 ### Access the Web Dashboard:**
+
+Configure Autherization:
+
+The gateway requires auth. Add a token or password, 
+openclaw dashboard --no-open 
+openclaw doctor --generate-gateway-token → set token
+Docs: Control UI auth
+
 The gateway UI will bind to port `18789`. If you are running this on a headless server, you can securely port-forward it via SSH to view it locally:
 ```bash
 ssh -N -L 18789:127.0.0.1:18789 user@your_ubuntu_ip
@@ -62,7 +70,8 @@ Then visit the following link in your local browser to input your gateway token.
 
 ```bash
 http://localhost:18789
-``` 
+```
+Go to overview page, enter the password and click `Connect`.
 
 ---
 
