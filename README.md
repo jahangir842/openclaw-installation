@@ -19,8 +19,6 @@ Remove the openclas if it has been installed previously:
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
----
-
 3. **Configure the Agent & LLM Provider:**
 The interactive wizard will prompt you to select your LLM provider. Here is how to handle the configuration depending on your backend:
 
