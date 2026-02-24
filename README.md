@@ -34,9 +34,16 @@ Default model ollama/llama3.2
 
 * **Cloud APIs (Claude / OpenAI):** If you switch to an external provider, select Anthropic or OpenAI and paste your active API key when prompted (e.g., `sk-ant-api03-...` for Claude or `sk-proj-...` for OpenAI).
 
----
+* **Configure skills now**
+```bash
+Skip for now
+```
+* **Enable hooks**
+```bash
+Skip for now
+```
 
-4. **Configure skills now**
+The Installation has been completed.
 
 ---
 
