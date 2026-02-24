@@ -17,16 +17,26 @@ If you prefer running the framework directly on the host OS, the official bash s
 1. **Run the One-Liner:**
 ```bash
 curl -fsSL https://openclaw.ai/install.sh | bash
-
 ```
 
 ---
 
 3. **Configure the Agent & LLM Provider:**
 The interactive wizard will prompt you to select your LLM provider. Here is how to handle the configuration depending on your backend:
+
+* **Ollama**:
+```bash
+Model/auth provider Skip for now
+Filter models by provider All providers
+Default model Enter model manually
+Default model ollama/llama3.2
+```
+
 * **Local Models (vLLM):** Select the vLLM option. Input your vLLM base URL (e.g., `http://192.168.3.74:8080/v1`). When prompted for the vLLM API key, simply enter a placeholder like `sk-local`, `dummy`, or `1234`. OpenClaw requires a non-empty string to format the authorization header correctly, but your local vLLM instance will safely ignore it.
+
 * **Cloud APIs (Claude / OpenAI):** If you switch to an external provider, select Anthropic or OpenAI and paste your active API key when prompted (e.g., `sk-ant-api03-...` for Claude or `sk-proj-...` for OpenAI).
 
+---
 
 4. **Access the Web Dashboard:**
 The gateway UI will bind to port `18789`. If you are running this on a headless server, you can securely port-forward it via SSH to view it locally:
