@@ -43,6 +43,11 @@ Skip for now
 Skip for now
 ```
 
+Start TUI (best option!) --> its for Web Access
+```bash
+HATCH in TUI
+```
+
 The Installation has been completed.
 
 ---
