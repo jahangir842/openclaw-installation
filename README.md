@@ -146,9 +146,9 @@ Skip for now
 Skip for now
 ```
 
-Start TUI (best option!) --> its for Web Access
+Start TUI (Text User Interface)
 ```bash
-HATCH in TUI
+Skip for now
 ```
 
 The Installation has been completed.
