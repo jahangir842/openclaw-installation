@@ -58,8 +58,16 @@ Configure Autherization:
 
 The gateway requires auth. Add a token or password, 
 openclaw dashboard --no-open 
-openclaw doctor --generate-gateway-token → set token
-Docs: Control UI auth
+
+nano ~/.openclaw/openclaw.json
+
+and set the follwoing gateway auth section:
+
+```bash
+    "auth": {
+      "mode": "password",
+      "password": "pakistan"
+```
 
 The gateway UI will bind to port `18789`. If you are running this on a headless server, you can securely port-forward it via SSH to view it locally:
 ```bash
