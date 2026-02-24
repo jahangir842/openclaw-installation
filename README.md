@@ -18,35 +18,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 
 ```
 
-
-2. **Launch the Background Daemon:**
-To ensure the agent stays alive continuously in the background, run the onboarding command with the daemon flag:
-```bash
-openclaw onboard --install-daemon
-
-```
-
 ---
-
-## Option 2: Docker Compose (Recommended)
-
-This approach provides the granular control and container isolation standard in robust infrastructure deployments. It also makes it straightforward to securely expose the web dashboard behind a Cloudflare tunnel or reverse proxy later on.
-
-1. **Clone the Repository:**
-```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
-
-```
-
-
-2. **Execute the Setup Wrapper:**
-This script builds the gateway image, handles the initial configuration, and spins up the containers.
-```bash
-./docker-setup.sh
-
-```
-
 
 3. **Configure the Agent & LLM Provider:**
 The interactive wizard will prompt you to select your LLM provider. Here is how to handle the configuration depending on your backend:
