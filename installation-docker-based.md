@@ -54,6 +54,7 @@ Instead of creating a blank file, copy the official template. Set `chmod 600` im
 ```bash
 cp .env.example .env
 chmod 600 .env
+sudo chown -R 1000:1000 ~/.openclaw
 
 ```
 
