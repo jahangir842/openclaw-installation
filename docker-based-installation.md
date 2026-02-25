@@ -63,6 +63,8 @@ Open the `.env` file (`nano .env`). Uncomment and fill in your secure tokens, th
 # --- Inside .env ---
 
 # 1. Update the default token to a secure random string
+# openssl rand -hex 32
+
 OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
 
 # 2. Uncomment and set your model provider keys
