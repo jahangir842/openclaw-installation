@@ -205,6 +205,20 @@ Because OpenClaw is strict about web security, you must explicitly tell it your 
 
 ```
 
+For unsafe and local access, you can add these:
+
+```json
+{
+  "gateway": {
+    "controlUi": {
+      "dangerouslyAllowHostHeaderOriginFallback": true
+    }
+  },
+  "agents": { ... },
+  ... (the rest of your existing settings) ...
+}
+```
+
 **3. Generate SSL Certificates**
 Temporarily use Certbot to fetch the Let's Encrypt certificates before spinning up the full stack:
 
