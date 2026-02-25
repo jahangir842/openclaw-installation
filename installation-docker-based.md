@@ -175,8 +175,6 @@ Add the following content to the file:
 
 
 ```yaml
-version: '3.8'
-
 services:
   openclaw-gateway:
     image: ${OPENCLAW_IMAGE:-openclaw:local}
