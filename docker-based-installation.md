@@ -57,8 +57,14 @@ chmod 600 .env
 
 ```
 
-Open the `.env` file (`nano .env`). Uncomment and fill in your secure tokens, then append the infrastructure paths required by Docker Compose to the bottom of the file (replace `/home/youruser` with your actual absolute path, e.g., `/root`):
 
+
+###  Create a secure token to a secure random string
+```bash
+openssl rand -hex 32
+```
+
+Open the `.env` file (`nano .env`). Uncomment and fill in your secure tokens, then append the infrastructure paths required by Docker Compose to the bottom of the file (replace `/home/youruser` with your actual absolute path, e.g., `/root`):
 
 ```bash
 nano .env
@@ -69,8 +75,7 @@ Add the following settings:
 ```env
 # --- Inside .env ---
 
-# 1. Update the default token to a secure random string
-# openssl rand -hex 32
+
 
 OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
 
