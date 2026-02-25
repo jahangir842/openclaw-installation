@@ -1,23 +1,55 @@
-Openclaw Installation:
+### Phase 1: Secure Server Configuration (VPS Hardening)
 
-* github repo: https://github.com/openclaw/openclaw
+Before deploying any containers, the underlying Ubuntu host must be secured against automated attacks.
 
-### Step 1: Clone the Repository & Prepare the Environment
-
-You need to build the images directly from the OpenClaw repository root to ensure all dependencies are cached correctly.
+**1. Enforce SSH Key Authentication**
+Disable password logins to prevent brute-force attacks.
 
 ```bash
-# Clone the repository
+sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/PermitRootLogin yes/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+```
+
+**2. Configure the Firewall (UFW)**
+Drop all incoming traffic except for essential ports.
+
+```bash
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp   # Required for Let's Encrypt HTTP-01 challenge
+sudo ufw allow 443/tcp  # Required for secure HTTPS UI access
+sudo ufw enable
+
+```
+
+---
+
+### Phase 2: Repository & Environment Setup
+
+Clone the official repository to build the image locally and configure strict file permissions for sensitive data.
+
+**1. Clone the Source**
+
+```bash
 git clone https://github.com/openclaw/openclaw.git
 cd openclaw
 
-# Create your isolated host directories
+```
+
+**2. Prepare Isolated Volumes**
+Create the directories that will be mounted into the containers, ensuring the host user owns them securely.
+
+```bash
 mkdir -p ~/.openclaw/workspace
 chmod 700 ~/.openclaw
 
 ```
 
-Now, create your `.env` file. This directly addresses the Upwork requirement for "Proper API key management (environment variables, no hardcoding)."
+**3. API Key Management (.env)**
+Create the environment file. Setting `chmod 600` ensures only the owner can read these credentials.
 
 ```bash
 touch .env
@@ -25,110 +57,184 @@ chmod 600 .env
 
 ```
 
-Open the `.env` file and add a secure gateway token:
+Populate `.env` with your secure tokens:
 
 ```env
-OPENCLAW_GATEWAY_TOKEN=your_secure_random_token_here
+# .env
+OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
+OPENAI_API_KEY=sk-proj-your-key-here
+ANTHROPIC_API_KEY=sk-ant-your-key-here
 
 ```
 
-### Step 2: Build the Core Images
+---
 
-Instead of pulling a pre-built image, building it locally allows you to control the layers and dependencies (like adding specific apt packages if a client requests them later).
+### Phase 3: Build the Local Image
 
-Run the manual build command from the repo root:
+Building the image directly from the repository gives you control over the dependencies and caches the layers for faster future updates.
+
+Run this from the root of the cloned `openclaw` directory:
 
 ```bash
 docker build -t openclaw:local -f Dockerfile .
 
 ```
 
-**The Security Bonus (Sandboxing):** The client emphasized security. OpenClaw has a powerful feature where the gateway runs on the host, but the agent's actual tool execution (running code, modifying files) happens in a *separate, throwaway Docker container*.
+---
 
-Build the dedicated sandbox image so we can enable this security feature later:
+### Phase 4: Reverse Proxy Configuration
+
+We will use Nginx to terminate SSL and route traffic securely to the internal Docker network.
+
+Create an `nginx.conf` file in your deployment directory:
 
 ```bash
-./scripts/sandbox-setup.sh
+nano nginx.conf
 
 ```
 
-*Portfolio Note: Be sure to mention "Per-session Agent Sandboxing" in your Upwork interviews. It shows you understand how to prevent an AI agent from accidentally wiping the host system.*
+Add the following configuration, replacing `yourdomain.com` with the actual domain pointing to the VPS:
 
-### Step 3: Run the Onboarding Wizard via CLI
+```nginx
+server {
+    listen 80;
+    server_name openclaw.yourdomain.com;
 
-In a production environment, you never want your main gateway daemon blocked by an interactive terminal prompt. OpenClaw handles this by using a separate CLI execution for onboarding.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 
-Run the wizard to set up your LLM providers (Anthropic, OpenAI, etc.):
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name openclaw.yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/openclaw.yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/openclaw.yourdomain.com/privkey.pem;
+
+    location / {
+        proxy_pass http://openclaw-gateway:18789;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+```
+
+---
+
+### Phase 5: Docker Compose Architecture
+
+This stack isolates the gateway entirely. It does not map port `18789` to the host machine; instead, Nginx acts as the only entry point.
+
+Create your `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  openclaw-gateway:
+    image: openclaw:local
+    container_name: openclaw-gateway
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ~/.openclaw:/home/node/.openclaw
+      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
+    # Notice: No external ports mapped here.
+    command: ["node", "dist/index.js", "gateway", "--bind", "lan"]
+
+  openclaw-cli:
+    image: openclaw:local
+    container_name: openclaw-cli
+    env_file: .env
+    volumes:
+      - ~/.openclaw:/home/node/.openclaw
+      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
+    stdin_open: true
+    tty: true
+    entrypoint: ["node", "dist/index.js"]
+
+  nginx:
+    image: nginx:alpine
+    container_name: openclaw-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - openclaw-gateway
+
+```
+
+---
+
+### Phase 6: Bootstrapping & Operations
+
+With the architecture defined, we initialize the configuration.
+
+**1. Run the Onboarding Wizard**
+Use the CLI container to configure your models without interrupting the main gateway daemon.
 
 ```bash
 docker compose run --rm openclaw-cli onboard
 
 ```
 
-Follow the interactive prompts. The configurations you set here will be saved to your `~/.openclaw` volume.
-
-### Step 4: Start the Gateway Service
-
-Once onboarding is complete, you can launch the continuous gateway daemon in detached mode.
-
-```bash
-docker compose up -d openclaw-gateway
-
-```
-
-You can verify it is running healthily by checking the logs:
-
-```bash
-docker compose logs -f openclaw-gateway
-
-```
-
-### Step 5: Access the Control Dashboard
-
-To securely access the web interface, you need to generate a paired session link. Run the dashboard command via the CLI tool:
-
-```bash
-docker compose run --rm openclaw-cli dashboard --no-open
-
-```
-
-This will output a URL like `http://127.0.0.1:18789/?token=...`.
-
-1. Open this link in your browser.
-2. If you see an "unauthorized" or "pairing required" message, it means your browser device needs approval.
-3. List pending devices: `docker compose run --rm openclaw-cli devices list`
-4. Approve your browser: `docker compose run --rm openclaw-cli devices approve <requestId>`
-
-### Step 6: Enable the Advanced Sandbox (Optional but Recommended)
-
-To truly harden the setup, edit your OpenClaw configuration file (located in `~/.openclaw/config/` after onboarding) and enable the sandbox feature we built in Step 2:
+**2. Secure the UI Origin**
+Because OpenClaw is strict about web security, you must explicitly tell it your domain name is safe. Open `~/.openclaw/openclaw.json` and add your domain to the `controlUi` block:
 
 ```json
-{
-  "agents": {
-    "defaults": {
-      "sandbox": {
-        "mode": "non-main",
-        "scope": "agent",
-        "docker": {
-          "image": "openclaw-sandbox:bookworm-slim",
-          "network": "none"
-        }
-      }
+  "gateway": {
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": ["https://openclaw.yourdomain.com"]
     }
   }
-}
 
 ```
 
-*This configuration ensures that any code the agent executes runs in an isolated `bookworm-slim` container with absolutely no network egress (`network: "none"`).*
+**3. Generate SSL Certificates**
+Temporarily use Certbot to fetch the Let's Encrypt certificates before spinning up the full stack:
+
+```bash
+docker run -it --rm --name certbot \
+  -v "$(pwd)/certbot/conf:/etc/letsencrypt" \
+  -v "$(pwd)/certbot/www:/var/www/certbot" \
+  certbot/certbot certonly --webroot -w /var/www/certbot -d openclaw.yourdomain.com
+
+```
+
+**4. Start the Production Stack**
+
+```bash
+docker compose up -d
+
+```
+
+**5. Device Pairing**
+To log into the UI at `https://openclaw.yourdomain.com`, you will need a secure link and device approval:
+
+```bash
+# Get the login link
+docker compose run --rm openclaw-cli dashboard --no-open
+
+# Approve your browser session
+docker compose run --rm openclaw-cli devices list
+docker compose run --rm openclaw-cli devices approve <Request_ID>
+
+```
 
 ---
 
-### How to pitch this on Upwork
-
-Once you have this running locally, you have everything you need to win the job. You can tell the client:
-
-> *"I have set up the manual Docker Compose flow for OpenClaw. I separated the `openclaw-gateway` daemon from the interactive `openclaw-cli` to keep the runtime clean. I utilized strict `.env` injection for API keys to prevent hardcoding. Furthermore, I built the dedicated `openclaw-sandbox:bookworm-slim` image and configured the agent to execute all tools inside a secondary, throwaway container with `network: none` enabled, ensuring complete host isolation."*
-
-Would you like me to write a quick `README.md` based on this flow that you can send to the Upwork client as an example of the "Basic documentation" they requested?
