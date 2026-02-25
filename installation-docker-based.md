@@ -158,7 +158,21 @@ server {
 
 This stack utilizes the official repository's environment variables but isolates the gateway entirely. Nginx acts as the only entry point. It also includes `init: true` to ensure the Node.js processes handle termination signals correctly.
 
-Create your `docker-compose.yml`:
+
+#### Backup the existing `docker-compose.yml`
+
+```bash
+mv docker-compose.yml docker-compose.yml.bkp
+```
+
+#### Create a new `docker-compose.yml` file
+
+```bash
+nano docker-compose.yml
+```
+
+Add the following content to the file:
+
 
 ```yaml
 version: '3.8'
