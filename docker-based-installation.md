@@ -59,6 +59,13 @@ chmod 600 .env
 
 Open the `.env` file (`nano .env`). Uncomment and fill in your secure tokens, then append the infrastructure paths required by Docker Compose to the bottom of the file (replace `/home/youruser` with your actual absolute path, e.g., `/root`):
 
+
+```bash
+nano .env
+```
+
+Add the following settings:
+
 ```env
 # --- Inside .env ---
 
