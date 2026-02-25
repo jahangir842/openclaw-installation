@@ -1,0 +1,35 @@
+services:
+  openclaw-gateway:
+    image: openclaw:local # Your locally built image
+    container_name: openclaw-gateway
+    env_file: .env
+    restart: always
+    volumes:
+      - ~/.openclaw:/home/node/.openclaw
+      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
+    # Ports are intentionally REMOVED here. Nginx handles external traffic.
+    command: ["node", "dist/index.js", "gateway"]
+
+  openclaw-cli:
+    image: openclaw:local
+    container_name: openclaw-cli
+    env_file: .env
+    volumes:
+      - ~/.openclaw:/home/node/.openclaw
+      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
+    stdin_open: true
+    tty: true
+    entrypoint: ["node", "dist/index.js"]
+
+  nginx:
+    image: nginx:alpine
+    container_name: openclaw-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro # Mounts SSL certs
+    depends_on:
+      - openclaw-gateway
