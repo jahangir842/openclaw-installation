@@ -248,6 +248,11 @@ docker compose run --rm openclaw-cli onboard
 
 ```
 
+After the installation begins, follow this setup guide for the remaining steps:
+
+[https://github.com/jahangir842/openclaw-installation/blob/main/installation-native-CLI.md](https://github.com/jahangir842/openclaw-installation/blob/main/installation-native-CLI.md)
+
+
 **2. Secure the UI Origin**
 Because OpenClaw is strict about web security, you must explicitly tell it your domain name is safe. Open `~/.openclaw/openclaw.json` and add your domain to the `controlUi` block:
 
