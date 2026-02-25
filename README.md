@@ -30,6 +30,21 @@ Default model Enter model manually
 Default model ollama/llama3.2
 ```
 
+  
+* **Model/auth provider**
+Skip this if you're running the model locally, or use OpenAI or Anthropic if you are using the API.
+```bash
+Skip for now
+```
+
+* **Filter models by provider**
+Select `All providers` if you're running the model locally, or use OpenAI or Anthropic's specific model names if you are using the API.
+```bash
+All providers
+```
+
+
+
 **Sample Ollama configuration:**
 
 You can use the follwoing Ollama sample configurations:
