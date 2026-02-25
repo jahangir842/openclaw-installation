@@ -57,10 +57,16 @@ chmod 600 .env
 
 ```
 
-Populate `.env` with your secure tokens:
+Populate `.env` with your infrastructure paths and secure tokens (replace `/home/youruser` with the actual absolute path to your home directory, e.g., `/root` or `/home/ubuntu`):
 
 ```env
-# .env
+# Infrastructure Paths
+OPENCLAW_IMAGE=openclaw:local
+OPENCLAW_CONFIG_DIR=/home/youruser/.openclaw
+OPENCLAW_WORKSPACE_DIR=/home/youruser/.openclaw/workspace
+OPENCLAW_GATEWAY_BIND=lan
+
+# Security & API Keys
 OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
 OPENAI_API_KEY=sk-proj-your-key-here
 ANTHROPIC_API_KEY=sk-ant-your-key-here
@@ -132,7 +138,7 @@ server {
 
 ### Phase 5: Docker Compose Architecture
 
-This stack isolates the gateway entirely. It does not map port `18789` to the host machine; instead, Nginx acts as the only entry point.
+This stack utilizes the official repository's environment variables but isolates the gateway entirely. It does not map port `18789` to the host machine; instead, Nginx acts as the only entry point. It also includes `init: true` to ensure the Node.js processes handle termination signals correctly.
 
 Create your `docker-compose.yml`:
 
@@ -141,25 +147,45 @@ version: '3.8'
 
 services:
   openclaw-gateway:
-    image: openclaw:local
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     container_name: openclaw-gateway
     env_file: .env
-    restart: unless-stopped
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
     volumes:
-      - ~/.openclaw:/home/node/.openclaw
-      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
-    # Notice: No external ports mapped here.
-    command: ["node", "dist/index.js", "gateway", "--bind", "lan"]
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+    # Notice: No external ports mapped here. Traffic goes through Nginx.
+    init: true
+    restart: unless-stopped
+    command:
+      [
+        "node",
+        "dist/index.js",
+        "gateway",
+        "--bind",
+        "${OPENCLAW_GATEWAY_BIND:-lan}",
+        "--port",
+        "18789",
+      ]
 
   openclaw-cli:
-    image: openclaw:local
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
     container_name: openclaw-cli
     env_file: .env
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      BROWSER: echo
     volumes:
-      - ~/.openclaw:/home/node/.openclaw
-      - ~/.openclaw/workspace:/home/node/.openclaw/workspace
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     stdin_open: true
     tty: true
+    init: true
     entrypoint: ["node", "dist/index.js"]
 
   nginx:
@@ -205,7 +231,7 @@ Because OpenClaw is strict about web security, you must explicitly tell it your 
 
 ```
 
-For unsafe and local access, you can add these:
+For unsafe and local access without a domain, you can fallback to this configuration:
 
 ```json
 {
@@ -217,6 +243,7 @@ For unsafe and local access, you can add these:
   "agents": { ... },
   ... (the rest of your existing settings) ...
 }
+
 ```
 
 **3. Generate SSL Certificates**
