@@ -49,27 +49,31 @@ chmod 700 ~/.openclaw
 ```
 
 **3. API Key Management (.env)**
-Create the environment file. Setting `chmod 600` ensures only the owner can read these credentials.
+Instead of creating a blank file, copy the official template. Set `chmod 600` immediately to ensure only the root/deployment user can read the credentials.
 
 ```bash
-touch .env
+cp .env.example .env
 chmod 600 .env
 
 ```
 
-Populate `.env` with your infrastructure paths and secure tokens (replace `/home/youruser` with the actual absolute path to your home directory, e.g., `/root` or `/home/ubuntu`):
+Open the `.env` file (`nano .env`). Uncomment and fill in your secure tokens, then append the infrastructure paths required by Docker Compose to the bottom of the file (replace `/home/youruser` with your actual absolute path, e.g., `/root`):
 
 ```env
-# Infrastructure Paths
+# --- Inside .env ---
+
+# 1. Update the default token to a secure random string
+OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
+
+# 2. Uncomment and set your model provider keys
+OPENAI_API_KEY=sk-proj-your-key-here
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+# 3. Append these Docker Infrastructure Paths at the bottom of the file
 OPENCLAW_IMAGE=openclaw:local
 OPENCLAW_CONFIG_DIR=/home/youruser/.openclaw
 OPENCLAW_WORKSPACE_DIR=/home/youruser/.openclaw/workspace
 OPENCLAW_GATEWAY_BIND=lan
-
-# Security & API Keys
-OPENCLAW_GATEWAY_TOKEN=generate_a_long_secure_random_string
-OPENAI_API_KEY=sk-proj-your-key-here
-ANTHROPIC_API_KEY=sk-ant-your-key-here
 
 ```
 
@@ -138,7 +142,7 @@ server {
 
 ### Phase 5: Docker Compose Architecture
 
-This stack utilizes the official repository's environment variables but isolates the gateway entirely. It does not map port `18789` to the host machine; instead, Nginx acts as the only entry point. It also includes `init: true` to ensure the Node.js processes handle termination signals correctly.
+This stack utilizes the official repository's environment variables but isolates the gateway entirely. Nginx acts as the only entry point. It also includes `init: true` to ensure the Node.js processes handle termination signals correctly.
 
 Create your `docker-compose.yml`:
 
@@ -231,20 +235,7 @@ Because OpenClaw is strict about web security, you must explicitly tell it your 
 
 ```
 
-For unsafe and local access without a domain, you can fallback to this configuration:
-
-```json
-{
-  "gateway": {
-    "controlUi": {
-      "dangerouslyAllowHostHeaderOriginFallback": true
-    }
-  },
-  "agents": { ... },
-  ... (the rest of your existing settings) ...
-}
-
-```
+*For unsafe/local testing without a domain, you can fallback to: `"dangerouslyAllowHostHeaderOriginFallback": true*`
 
 **3. Generate SSL Certificates**
 Temporarily use Certbot to fetch the Let's Encrypt certificates before spinning up the full stack:
@@ -278,4 +269,3 @@ docker compose run --rm openclaw-cli devices approve <Request_ID>
 ```
 
 ---
-
