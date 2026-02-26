@@ -279,7 +279,8 @@ sudo nano ~/.openclaw/openclaw.json
   "gateway": {
     "bind": "lan",
     "controlUi": {
-      "dangerouslyAllowHostHeaderOriginFallback": true
+      "dangerouslyAllowHostHeaderOriginFallback": true,
+      "allowInsecureAuth": true
     }
   }
 
