@@ -189,6 +189,8 @@ services:
       - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
       - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
     # Notice: No external ports mapped here. Traffic goes through Nginx.
+    ports:                  # <--- ADD the ports section if testing locally
+      - "18789:18789"
     init: true
     restart: unless-stopped
     command:
@@ -281,6 +283,12 @@ sudo nano ~/.openclaw/openclaw.json
     }
   }
 
+```
+
+Check the logs to ensure it's running:
+
+```bash
+sudo docker logs openclaw-gateway
 ```
 
 **3. Generate SSL Certificates**
