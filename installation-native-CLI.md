@@ -43,16 +43,21 @@ Select `All providers` if you're running the model locally, or use OpenAI or Ant
 All providers
 ```
 
+Create a backup of the existing configuration:
 
+```bash
+mv .openclaw/openclaw.json .openclaw/openclaw.json.bak
+```
 
-**Sample Ollama configuration:**
+Then create a new **sample Ollama configuration file**:
 
-You can use the follwoing Ollama sample configurations:
+Use one of the example configurations below as a reference:
 
 ```bash
 nano ./.openclaw/openclaw.json
 ```
 
+Use the following code:
 
 ```bash
 {
