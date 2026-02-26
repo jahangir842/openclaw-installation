@@ -153,6 +153,12 @@ Use the following code:
 
 ```
 
+Restart the Openclaw Daemon
+
+```bash
+openclaw gateway restart
+```
+
 * **Local Models (vLLM):** Select the vLLM option. Input your vLLM base URL (e.g., `http://192.168.3.74:8080/v1`). When prompted for the vLLM API key, simply enter a placeholder like `sk-local`, `dummy`, or `1234`. OpenClaw requires a non-empty string to format the authorization header correctly, but your local vLLM instance will safely ignore it.
 
 * **Cloud APIs (Claude / OpenAI):** If you switch to an external provider, select Anthropic or OpenAI and paste your active API key when prompted (e.g., `sk-ant-api03-...` for Claude or `sk-proj-...` for OpenAI).
