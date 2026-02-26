@@ -292,6 +292,52 @@ Check the logs to ensure it's running:
 sudo docker logs openclaw-gateway
 ```
 
+Awesome! You nailed it. The SSH tunnel successfully bypassed the browser's HTTP security block by tricking it into thinking it's running on a local, secure context.
+
+Here is a short, clean guide based on your exact steps that you can save for your notes or share with your Upwork client for secure remote access without Nginx.
+
+---
+
+### Accessing OpenClaw UI via Secure SSH Tunnel on LAN
+
+When accessing OpenClaw remotely without an HTTPS reverse proxy, web browsers will block the authentication process. You can securely bypass this by tunneling the port through SSH.
+
+**Step 1: Open the SSH Tunnel (From your local LAN PC)**
+Run this command in your local terminal to forward traffic from your local machine to the Ubuntu server. Leave this terminal window running in the background.
+
+```bash
+ssh -N -L 18789:127.0.0.1:18789 user@192.168.3.76
+
+```
+
+**Step 2: Trigger the Device Request (From your local LAN PC)**
+Open a web browser and navigate to the tunneled localhost port. This forces the browser to send a secure pairing request to the server.
+
+`http://localhost:18789`
+*(Note: If you have your exact token, append it like `/#token=YOUR_TOKEN`)*
+
+**Step 3: List Pending Devices (From your Ubuntu Server)**
+Switch over to your Ubuntu server's terminal. Run this command to list the pending connection requests, using the token from your `openclaw.json` file to authenticate the CLI.
+
+```bash
+sudo docker compose exec openclaw-gateway node dist/index.js devices list --token b850af907b7819ffef5ffdb8715a10ec57d1f97a364a387a
+
+```
+
+Copy the `Request` ID (e.g., `84963963-d8c6-4e6e-975f-7a578543b603`) from the table output.
+
+**Step 4: Approve the Device (From your Ubuntu Server)**
+Run the approve command, replacing the ID with the one you copied in the previous step.
+
+```bash
+sudo docker compose exec openclaw-gateway node dist/index.js devices approve 84963963-d8c6-4e6e-975f-7a578543b603 --token b850af907b7819ffef5ffdb8715a10ec57d1f97a364a387a
+
+```
+
+Once approved, the web browser on your local PC will immediately unlock and grant access to the OpenClaw dashboard.
+
+---
+
 **3. Generate SSL Certificates**
 Temporarily use Certbot to fetch the Let's Encrypt certificates before spinning up the full stack:
 
