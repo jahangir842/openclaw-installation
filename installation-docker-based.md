@@ -269,6 +269,16 @@ Because OpenClaw is strict about web security, you must explicitly tell it your 
 
 *For unsafe/local testing without a domain, you can fallback to: `"dangerouslyAllowHostHeaderOriginFallback": true*`
 
+```json
+  "gateway": {
+    "bind": "lan",
+    "controlUi": {
+      "dangerouslyAllowHostHeaderOriginFallback": true
+    }
+  }
+
+```
+
 **3. Generate SSL Certificates**
 Temporarily use Certbot to fetch the Let's Encrypt certificates before spinning up the full stack:
 
